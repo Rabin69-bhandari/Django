@@ -1,0 +1,160 @@
+{%extends 'shop/basic.html'%}
+{%block body%}
+<div class="container">
+    <div class="col-my-5">
+        <h2>Step 1 - My Awesome Cart Express Checkout - Review Your Cart Items</h2>
+        <div>
+            <ol class="list-group list-group-numbered my-4" id="items-div"> </ol>
+            <ol class="list-group list-group-numbered my-4" id="total-div"> </ol>
+        </div>
+    </div>
+    <h2>Step 2: Enter Your details below:</h2>
+    <form class="row g-3 needs-validation" novalidate method="post" action="/shop/checkout/">{%csrf_token%}
+        <input type="hidden" name="itemsJson" id="itemsJson">
+        <div class="col-md-4">
+          <label for="validationCustom01" class="form-label">Name:</label>
+          <input type="text" class="form-control" name="name" id="validationCustom01" required>
+          <div class="valid-feedback">
+            Looks good!
+          </div>
+        </div>
+        <div class="col-md-4">
+          <label for="validationCustomUsername" class="form-label">Email</label>
+          <div class="input-group has-validation">
+            
+            <input type="email" class="form-control" name="email" id="validationCustomUsername" aria-describedby="inputGroupPrepend" required>
+            <div class="invalid-feedback">
+              Please choose a Email.
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+            <label for="validationCustomUsername" class="form-label">Phone Number</label>
+            <div class="input-group has-validation">
+              
+              <input type="tel" class="form-control" name="phone" id="validationCustomUsername" aria-describedby="inputGroupPrepend" required>
+              <div class="invalid-feedback">
+               
+              </div>
+            </div>
+          </div>
+        <div class="col-md-6">
+          <label for="validationCustom03" class="form-label">City</label>
+          <input type="text" class="form-control" name="city" id="validationCustom03" required>
+          <div class="invalid-feedback">
+            Please provide a valid city.
+          </div>
+        </div> 
+        <div class="col-md-3">
+          <label for="validationCustom04" class="form-label">State</label>
+          <select class="form-select" name ="state" id="validationCustom04" required>
+            <option selected disabled value="">Choose...</option>
+            <option value="Alabama">Alabama</option>
+            <option value="Alaska">Alaska</option>
+            <option value="Arizona">Arizona</option>
+            <option value="Arkansas">Arkansas</option>
+            <option value="California">California</option>
+            <option value="Colorado">Colorado</option>
+            <option value="Connecticut">Connecticut</option>
+            <option value="Delaware">Delaware</option>
+            <option value="Florida">Florida</option>
+            <option value="Georgia">Georgia</option>
+            <option value="Hawaii">Hawaii</option>
+            <option value="Idaho">Idaho</option>
+            <option value="Illinois">Illinois</option>
+            <option value="Indiana">Indiana</option>
+            <option value="Iowa">Iowa</option>
+            <option value="Kansas">Kansas</option>
+            <option value="Kentucky">Kentucky</option>
+            <option value="Louisiana">Louisiana</option>
+            <option value="Maine">Maine</option>
+            <option value="Maryland">Maryland</option>
+            <option value="Massachusetts">Massachusetts</option>
+            <option value="Michigan">Michigan</option>
+            <option value="Minnesota">Minnesota</option>
+            <option value="Mississippi">Mississippi</option>
+            <option value="Missouri">Missouri</option>
+            <option value="Montana">Montana</option>
+            <option value="Nebraska">Nebraska</option>
+            <option value="Nevada">Nevada</option>
+            <option value="New Hampshire">New Hampshire</option>
+            <option value="New Jersey">New Jersey</option>
+            <option value="New Mexico">New Mexico</option>
+            <option value="New York">New York</option>
+            <option value="North Carolina">North Carolina</option>
+            <option value="North Dakota">North Dakota</option>
+            <option value="Ohio">Ohio</option>
+            <option value="Oklahoma">Oklahoma</option>
+            <option value="Oregon">Oregon</option>
+            <option value="Pennsylvania">Pennsylvania</option>
+          </select>
+          <div class="invalid-feedback">
+            Please select a valid state.
+          </div>
+        </div>
+        <div class="col-md-3">
+          <label for="validationCustom05" class="form-label">Zip</label>
+          <input type="text" class="form-control" name="zip" id="validationCustom05" required>
+          <div class="invalid-feedback">
+            Please provide a valid zip.
+          </div>
+        </div>
+        <div class="col-12">
+          <button class="btn btn-secondary" type="submit">Place Your Order</button>
+        </div>
+      </form>
+</div>
+
+
+<script>
+    if (localStorage.getItem('cart') == null) {
+        var cart={}
+    } else {
+        cart = JSON.parse(localStorage.getItem('cart'))
+
+    }
+    if ($.isEmptyObject(cart)) {
+        mystr = '<h4>There is no items in the cart. Add some items before checking out.</h4>'
+        $('#items-div').append(mystr)
+
+    } else {
+      total = 0
+      totalqty = 0
+        for (var item in cart) {
+            const name = cart[item][0]
+            let qty = cart[item][1]
+            let price = parseInt((cart[item][2]).slice(6,))
+            if(qty > 1){
+              price *= qty
+            }
+            mystr = `<li id="items-div" class="list-group-item d-flex justify-content-between align-items-start">
+                <b> <div class="ms-2 me-auto">
+                 ${name} </b>
+         </div>
+      <span class="badge text-bg-dark rounded-pill">${qty}</span> 
+      <span class="badge text-bg-dark mx-3">${price}</span> 
+      </li>`
+      $('#items-div').append(mystr)
+      total += price
+      totalqty += qty
+        }
+        mytotalstr =`
+         <li id="items-div" class="list-group-item d-flex justify-content-between align-items-start">
+          <b>  <div class="ms-2 me-auto">Total</b>
+            </div>
+        <span class="badge text-dark rounded-pill">Total Quantity: <strong>${totalqty} </strong></span> 
+        <span class="badge text-dark mx-3"> Total Price: ${total}</span>
+        </li> `
+        $('#total-div').append(mytotalstr)
+        
+    }
+    document.getElementById('cart').innerHTML = Object.keys(cart).length
+  
+    $('#itemsJson').val(JSON.stringify(cart));
+    {%if thanks%}
+        alert('Your Product has been Placed, Your Order id is {{id}}')
+        localStorage.clear();
+        document.location='/shop/'
+    {%endif%}
+</script>
+{%endblock%}
